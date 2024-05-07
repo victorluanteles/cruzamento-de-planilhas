@@ -1,0 +1,54 @@
+import pandas as pd
+
+# Caminho para o arquivo Excel
+caminho_arquivo1 = 'C:\\Users\\victor.oliveira\\Downloads\\Análise de Transporte SHARED SERVICES (9).xlsx'
+caminho_arquivo2 = 'C:\\Users\\victor.oliveira\\Downloads\\Base de Dados Inscritos_Stellantis Regular (69).xlsx'
+
+# Lendo o arquivo Excel e transformando em um DataFrame
+dados_transporte = pd.read_excel(caminho_arquivo1)
+dados_inscritos = pd.read_excel(caminho_arquivo2)
+def formatar_valor(valor):
+    # Remover pontos e traços
+    valor_sem_pontos = str(valor).replace(".", "").replace("-", "")
+    # Converter para número
+    valor_numerico = float(valor_sem_pontos)
+    # Formatar como string com zeros à esquerda
+    valor_formatado = f"{int(valor_numerico):011d}"
+    return valor_formatado
+
+dados_transporte['CPF_formatado1'] = dados_transporte['CPF-Candidato'].apply(formatar_valor)
+dados_transporte['NOME_arrumado1'] = dados_transporte['Nome_Candidata'].str.strip().str.upper()
+
+dados_inscritos['CPF_formatado2'] = dados_inscritos['CPF'].apply(formatar_valor)
+dados_inscritos['NOME_arrumado2'] = dados_inscritos['NOME'].str.strip().str.upper()
+
+colunas_desejadas_transporte = ["Nome_Candidata","CPF-Candidato","CPF_formatado1","NOME_arrumado1","STATUS FINAL"]
+dados_selecionados_transporte = dados_transporte[colunas_desejadas_transporte]
+
+colunas_desejadas_inscritos = ["CPF","NOME","CPF_formatado2","NOME_arrumado2","CURSO"]
+dados_selecionados_inscritos = dados_inscritos[colunas_desejadas_inscritos]
+
+dados_completos_join_nome = pd.merge(dados_selecionados_transporte, dados_selecionados_inscritos, left_on='NOME_arrumado1', right_on='NOME_arrumado2', how='left')
+
+dados_completos = pd.merge(dados_completos_join_nome, dados_selecionados_inscritos, left_on='CPF_formatado1', right_on='CPF_formatado2', how='left')
+
+print("teste")
+print(dados_completos)
+
+dados_completos['NOME_z'] = dados_completos['NOME_x'].fillna(dados_completos['NOME_y'])
+dados_completos['CURSO_z'] = dados_completos['CURSO_x'].fillna(dados_completos['CURSO_y'])
+colunas_desejadas = ["NOME_arrumado1","NOME_arrumado2_x","CPF_formatado1","CPF_formatado2_y","NOME_x","NOME_y","CURSO_z","NOME_z","STATUS FINAL"]
+dados_selecionados = dados_completos[colunas_desejadas]
+
+#nome_arquivo1 = "extracao.xlsx"
+#dados_inscritos.to_excel(nome_arquivo1, index=False)
+#print(f"Dados salvos em '{nome_arquivo1}'")
+
+nome_arquivo2 = "extracaojoin.xlsx"
+dados_selecionados.to_excel(nome_arquivo2, index=False)
+print(f"Dados salvos em '{nome_arquivo2}'")
+
+nome_arquivo3 = "extracao_completos.xlsx"
+dados_completos.to_excel(nome_arquivo3, index=False)
+print(f"Dados salvos em '{nome_arquivo3}'")
+
