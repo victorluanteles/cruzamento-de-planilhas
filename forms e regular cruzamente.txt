@@ -1,8 +1,8 @@
 import pandas as pd
 
 # Caminho para o arquivo Excel
-caminho_arquivo1 = 'C:\\Users\\victor.oliveira\\Downloads\\Programa de estágio Regular 2024 2 (15).xlsx'
-caminho_arquivo2 = 'C:\\Users\\victor.oliveira\\Downloads\\Base de Dados Inscritos_Stellantis Regular (72).xlsx'
+caminho_arquivo1 = 'C:\\Users\\victor.oliveira\\Downloads\\Programa de estágio Regular 2024 2 (16).xlsx'
+caminho_arquivo2 = 'C:\\Users\\victor.oliveira\\Downloads\\Base de Dados Inscritos_Stellantis Regular (80).xlsx'
 
 # Lendo o arquivo Excel e transformando em um DataFrame
 dados_forms = pd.read_excel(caminho_arquivo1)
