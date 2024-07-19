@@ -1,8 +1,8 @@
 import pandas as pd
 
 # Caminho para o arquivo Excel
-caminho_arquivo1 = 'C:\\Users\\victor.oliveira\\Downloads\\Programa de estágio Regular 2024 2 (16).xlsx'
-caminho_arquivo2 = 'C:\\Users\\victor.oliveira\\Downloads\\Base de Dados Inscritos_Stellantis Regular (80).xlsx'
+caminho_arquivo1 = 'C:\\Users\\victor.oliveira\\Downloads\\Programa de estágio Regular 2024 _ 2º Semestre(1-52).xlsx'
+caminho_arquivo2 = 'C:\\Users\\victor.oliveira\\Downloads\\Base de dados inscritos REGULAR 2º Semestre (7).xlsx'
 
 # Lendo o arquivo Excel e transformando em um DataFrame
 dados_forms = pd.read_excel(caminho_arquivo1)
@@ -16,13 +16,14 @@ def formatar_valor(valor):
     valor_formatado = f"{int(valor_numerico):011d}"
     return valor_formatado
 
-dados_forms.rename(columns={"Qual seu nome completo?": 'NOMEFORMS'}, inplace=True)
+dados_forms.rename(columns={"Nome completo?": 'NOMEFORMS'}, inplace=True)
 dados_forms.rename(columns={"Qual seu CPF? ": 'CPFFORMS'}, inplace=True)
-dados_forms.rename(columns={"De acordo com a listagem do IBGE, com qual etnia você se identifica?": 'etnia'}, inplace=True)
 dados_forms.rename(columns={"Valorizamos o direito de cada indivíduo de expressar sua identidade de maneira autêntica. Embora estejamos interessados em conhecê-lo(a) melhor, é importante destacar que quaisquer informações for...": 'Genero'}, inplace=True)
 
 dados_forms['CPF_formatado1'] = dados_forms['CPFFORMS'].apply(formatar_valor)
 dados_forms['NOME_arrumado1'] = dados_forms['NOMEFORMS'].str.strip().str.upper()
+
+
 
 dados_inscritos['CPF_formatado2'] = dados_inscritos['CPF'].apply(formatar_valor)
 dados_inscritos['NOME_arrumado2'] = dados_inscritos['NOME'].str.strip().str.upper()
@@ -31,27 +32,35 @@ dados_forms.rename(columns={"Qual o complemento? ": 'Complemento'}, inplace=Tru
 dados_forms.rename(columns={"Estado de residência?": 'Estado'}, inplace=True)
 
 colunas_desejadas_transporte = ["NOMEFORMS", "CPF_formatado1", "NOME_arrumado1", "Hora de conclusão",
-                                "Qual o País?", "Endereço de residência?", "Complemento","Cidade de residência?","Estado", "E qual o número da sua residência?","E o seu bairro de residência?","Qual o seu CEP?","Data Nascimento","etnia","Você possui algum tipo de deficiência?","Se sim, descreva sua deficiência.","Qual seu grau de escolaridade?", "CPFFORMS","Qual o nome completo da mãe?","Identidade","Qual telefone para contato?","Genero","Qual o seu estado civil?"]
+                                "Qual o seu país?", "Endereço de residência?", "Complemento","Cidade de residência?","Estado", "Número da sua residência?","E o seu bairro de residência?","Data de nascimento?","Você possui algum tipo de deficiência?","Se sim, descreva sua deficiência.","Grau de escolaridade?", "CPFFORMS","Nome completo da mãe?","Qual seu documento de identidade?","Genero","Estado civil?"]
 
 dados_selecionados_transporte = dados_forms[colunas_desejadas_transporte]
 
-colunas_desejadas_inscritos = ["CPF","NOME","CPF_formatado2","NOME_arrumado2","CURSO","DG | AVALIAÇÃO","PROGRAMA","EMAIL"]
+colunas_desejadas_inscritos = ["CPF","NOME","CPF_formatado2","NOME_arrumado2","CURSO","DG | AVALIAÇÃO","EMAIL","ETNIA","CEP","CEP.1","TELEFONE","VÍNCULO STELLANTIS","EMPRESA TERCEIRA","ID SAP"]
 dados_selecionados_inscritos = dados_inscritos[colunas_desejadas_inscritos]
 
 dados_completos_join_nome = pd.merge(dados_selecionados_transporte, dados_selecionados_inscritos, left_on='NOME_arrumado1', right_on='NOME_arrumado2', how='left')
 
 dados_completos = pd.merge(dados_completos_join_nome, dados_selecionados_inscritos, left_on='CPF_formatado1', right_on='CPF_formatado2', how='left')
 
-print("teste")
 print(dados_completos)
+
+
 
 dados_completos['NOME_z'] = dados_completos['NOME_x'].fillna(dados_completos['NOME_y'])
 dados_completos['CURSO_z'] = dados_completos['CURSO_x'].fillna(dados_completos['CURSO_y'])
 dados_completos['DG | AVALIAÇÃO_z'] = dados_completos['DG | AVALIAÇÃO_x'].fillna(dados_completos['DG | AVALIAÇÃO_y'])
-dados_completos['PROGRAMA_z'] = dados_completos['PROGRAMA_x'].fillna(dados_completos['PROGRAMA_y'])
 dados_completos['EMAIL_z'] = dados_completos['EMAIL_x'].fillna(dados_completos['EMAIL_y'])
+dados_completos['ETINIA_z'] = dados_completos['ETNIA_x'].fillna(dados_completos['ETNIA_y'])
+dados_completos['CEP.1_z'] = dados_completos['CEP.1_x'].fillna(dados_completos['CEP.1_y'])
+dados_completos['TELEFONE_z'] = dados_completos['TELEFONE_x'].fillna(dados_completos['TELEFONE_y'])
 
-colunas_desejadas = ["NOMEFORMS","Qual o País?", "Endereço de residência?", "Complemento", "Estado", "E qual o número da sua residência?","E o seu bairro de residência?","Cidade de residência?","Qual o seu CEP?","Data Nascimento","etnia","Você possui algum tipo de deficiência?","Se sim, descreva sua deficiência.","Qual seu grau de escolaridade?", "CPFFORMS","Qual o nome completo da mãe?","Identidade","Qual telefone para contato?","Genero","Qual o seu estado civil?","Hora de conclusão","PROGRAMA_z","NOME_z","EMAIL_z","DG | AVALIAÇÃO_z"]
+dados_completos['VÍNCULO STELLANTIS_z'] = dados_completos['VÍNCULO STELLANTIS_x'].fillna(dados_completos['VÍNCULO STELLANTIS_y'])
+dados_completos['EMPRESA TERCEIRA_z'] = dados_completos['EMPRESA TERCEIRA_x'].fillna(dados_completos['EMPRESA TERCEIRA_y'])
+dados_completos['ID SAP_z'] = dados_completos['ID SAP_x'].fillna(dados_completos['ID SAP_y'])
+
+
+colunas_desejadas = ["NOMEFORMS","EMAIL_z","Qual o seu país?", "Endereço de residência?", "Complemento", "Estado", "Número da sua residência?","E o seu bairro de residência?","Cidade de residência?","CEP.1_z","Data de nascimento?","ETINIA_z","Você possui algum tipo de deficiência?","Se sim, descreva sua deficiência.","Grau de escolaridade?", "CPF_formatado1","Nome completo da mãe?","Qual seu documento de identidade?","TELEFONE_z","Genero","Estado civil?","VÍNCULO STELLANTIS_z","EMPRESA TERCEIRA_z","ID SAP_z","Hora de conclusão","NOME_z","EMAIL_z","DG | AVALIAÇÃO_z"]
 dados_selecionados = dados_completos[colunas_desejadas]
 
 #nome_arquivo1 = "extracao.xlsx"
@@ -59,15 +68,18 @@ dados_selecionados = dados_completos[colunas_desejadas]
 #print(f"Dados salvos em '{nome_arquivo1}'")
 
 # Extrair apenas os valores "Aprovado(a)" ou "Stand by" do campo "DG | AVALIAÇÃO_z"
-dados_filtrados = dados_selecionados[dados_selecionados['DG | AVALIAÇÃO_z'].isin(['Aprovado(a)', 'Stand by'])]
+dados_filtrados = dados_selecionados[dados_selecionados['DG | AVALIAÇÃO_z'].isin(['Aprovado(a)', 'Stand by', 'Destaque'])]
 
 # Salvar os dados filtrados em um novo arquivo Excel
-nome_arquivo_filtrado = "dados_filtrados.xlsx"
+nome_arquivo_filtrado = "extracaoexcel\\dados_filtrados_regular.xlsx"
 dados_filtrados.to_excel(nome_arquivo_filtrado, index=False)
 
 print(f"Dados filtrados salvos em '{nome_arquivo_filtrado}'")
 
-nome_arquivo3 = "extracao_completos_forms.xlsx"
-dados_completos.to_excel(nome_arquivo3, index=False)
+nome_arquivo3 = "extracaoexcel\\selecionados_forms_regular.xlsx"
+dados_selecionados.to_excel(nome_arquivo3, index=False)
 print(f"Dados salvos em '{nome_arquivo3}'")
 
+#nome_arquivo4 = "extracaoexcel\\inscritos original.xlsx"
+#dados_inscritos.to_excel(nome_arquivo4, index=False)
+#print(f"Dados salvos em '{nome_arquivo4}'")
