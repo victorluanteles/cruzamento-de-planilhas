@@ -1,8 +1,9 @@
 import pandas as pd
-
+import unicodedata
+import re
 # Caminho para o arquivo Excel
-caminho_arquivo1 = 'C:\\Users\\victor.oliveira\\Downloads\\Programa de estágio Regular 2024 _ 2º Semestre 3 (39).xlsx'
-caminho_arquivo2 = 'C:\\Users\\victor.oliveira\\Downloads\\Base de dados inscritos REGULAR 2º Semestre (33).xlsx'
+caminho_arquivo1 = 'C:\\Users\\victor.oliveira\\Downloads\\Programa de estágio Regular 2024 _ 2º Semestre 3 (53).xlsx'
+caminho_arquivo2 = 'C:\\Users\\victor.oliveira\\Downloads\\Base de dados inscritos REGULAR 2º Semestre (64).xlsx'
 
 # Lendo o arquivo Excel e transformando em um DataFrame
 dados_forms = pd.read_excel(caminho_arquivo1)
@@ -16,6 +17,24 @@ def formatar_valor(valor):
     valor_formatado = f"{int(valor_numerico):011d}"
     return valor_formatado
 
+def remover_nao_numericos(valor):
+    # Manter apenas os números
+    valor_formatado = ''.join(filter(str.isdigit, str(valor)))
+    return valor_formatado
+
+def remover_acentos(texto):
+    # Verifica se o valor é nulo para evitar erros
+    if pd.isnull(texto):
+        return texto
+
+    # Normaliza o texto (remove acentos)
+    nfkd = unicodedata.normalize('NFKD', texto)
+    palavra_sem_acentos = ''.join([c for c in nfkd if not unicodedata.combining(c)])
+
+    # Usa expressão regular para manter apenas letras, números e espaços
+    return re.sub(r'[^a-zA-Z0-9 ]', '', palavra_sem_acentos)
+
+
 dados_forms.rename(columns={"Nome completo?": 'NOMEFORMS'}, inplace=True)
 dados_forms.rename(columns={"Qual seu CPF? ": 'CPFFORMS'}, inplace=True)
 dados_forms.rename(columns={"Valorizamos o direito de cada indivíduo de expressar sua identidade de maneira autêntica. Embora estejamos interessados em conhecê-lo(a) melhor, é importante destacar que quaisquer informações forneci": 'Genero'}, inplace=True)
@@ -23,13 +42,13 @@ dados_forms.rename(columns={"Valorizamos o direito de cada indivíduo de express
 
 
 
-#nome_arquivo4 = "extracaoexcel\\inscritos original.xlsx"
-#dados_inscritos.to_excel(nome_arquivo4, index=False)
-#print(f"Dados salvos em '{nome_arquivo4}'")
 
 
 
-dados_forms['CPF_formatado1'] = dados_forms['CPFFORMS'].apply(formatar_valor)
+
+# Aplicar a função apenas nos valores que não são NaN
+dados_forms['CPF_formatado1'] = dados_forms['CPFFORMS'].apply(lambda x: formatar_valor(x) if pd.notna(x) else '')
+
 dados_forms['NOME_arrumado1'] = dados_forms['NOMEFORMS'].str.strip().str.upper()
 
 print(dados_forms[['CPF_formatado1', 'CPFFORMS']])
@@ -70,12 +89,44 @@ dados_completos['VÍNCULO STELLANTIS_z'] = dados_completos['VÍNCULO STELLANTIS_
 dados_completos['EMPRESA TERCEIRA_z'] = dados_completos['EMPRESA TERCEIRA_x'].fillna(dados_completos['EMPRESA TERCEIRA_y'])
 dados_completos['ID SAP_z'] = dados_completos['ID SAP_x'].fillna(dados_completos['ID SAP_y'])
 
+# Exemplo de substituição tratamento de dados
+dados_completos['Você possui algum tipo de deficiência?'] = dados_completos['Você possui algum tipo de deficiência?'].replace({'Sim': 'S', 'Não': 'N'})
+
+dados_completos['Se sim, descreva sua deficiência.'] = dados_completos['Você possui algum tipo de deficiência?'].apply(
+    lambda x: 7 if x == 'S' else ''
+)
+#DEVE SER ALTERADO SEMPRE DE ACORDO COM O PROJETO
+dados_completos['Grau de escolaridade?'] = 22
+
+dados_completos['Qual o seu país?'] = 1
+
+
+dados_completos['ETINIA_z'] = dados_completos['ETINIA_z'].replace({
+    'Branca': '1',
+    'Parda': '4',
+    'Preta': '2',
+    'Amarela': '3',
+    'Indígena': '5',
+    'Prefiro não responder': '0'
+})
+
+dados_completos['Estado civil?'] = dados_completos['Estado civil?'].replace({
+    'Solteiro(a)': '1',
+    'Casado(a)': '2',
+    'Divorciado(a)': '3',
+    'Viúvo(a)': '4',
+    'Separado(a)': '6'
+})
+
+dados_completos['CEP.1_z'] = dados_completos['CEP.1_z'].apply(remover_nao_numericos)
+
+dados_completos['Cidade de residência?'] = dados_completos['Cidade de residência?'].apply(remover_acentos).str.upper()
 
 colunas_desejadas = ["NOMEFORMS","EMAIL_z","Qual o seu país?", "Endereço de residência?", "Complemento", "Estado", "Número da sua residência?","E o seu bairro de residência?","Cidade de residência?","CEP.1_z","Data de nascimento?","ETINIA_z","Você possui algum tipo de deficiência?","Se sim, descreva sua deficiência.","Grau de escolaridade?", "CPF_formatado1", "Nome completo da mãe?","Qual seu documento de identidade (RG)?","TELEFONE_z","Genero","Estado civil?","VÍNCULO STELLANTIS_z","EMPRESA TERCEIRA_z","ID SAP_z","Hora de conclusão","NOME_z","EMAIL_z","DG | AVALIAÇÃO_z","REGIÃO_z"]
 dados_selecionados = dados_completos[colunas_desejadas]
 
 nome_arquivo1 = "extracaoexcel\\extracao.xlsx"
-dados_inscritos.to_excel(nome_arquivo1, index=False)
+dados_completos.to_excel(nome_arquivo1, index=False)
 print(f"Dados salvos em '{nome_arquivo1}'")
 
 # Extrair apenas os valores "Aprovado(a)" ou "Stand by" do campo "DG | AVALIAÇÃO_z"
